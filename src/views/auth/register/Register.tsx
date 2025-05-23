@@ -24,11 +24,11 @@ const Register = () => {
   });
   const [message, setMessage] = useState("");
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
@@ -45,9 +45,15 @@ const Register = () => {
       });
 
       setMessage("✅ Account created! You can now log in.");
-    } catch (error) {
-      console.error("Registration error:", error.message);
-      setMessage("❌ " + getFriendlyFirebaseError(error.code));
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        const errorCode = (error as any).code || "unknown";
+        console.error("Registration error:", error.message);
+        setMessage("❌ " + getFriendlyFirebaseError(errorCode));
+      } else {
+        console.error("Unknown registration error", error);
+        setMessage("❌ An unexpected error occurred.");
+      }
     }
   };
 

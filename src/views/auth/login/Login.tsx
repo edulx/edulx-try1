@@ -17,11 +17,11 @@ const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [message, setMessage] = useState("");
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
@@ -30,9 +30,16 @@ const Login = () => {
       setTimeout(() => {
         window.location.href = "/MatDash"; // or your dashboard route
       }, 1000);
-    } catch (error) {
-      console.error("Login error:", error.message);
-      setMessage("❌ " + getFriendlyFirebaseError(error.code));
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Login error:", error.message);
+        // If it's a Firebase error, it'll have a 'code' property
+        const errorCode = (error as any).code || "unknown";
+        setMessage("❌ " + getFriendlyFirebaseError(errorCode));
+      } else {
+        console.error("Unknown login error", error);
+        setMessage("❌ An unexpected error occurred.");
+      }
     }
   };
 
